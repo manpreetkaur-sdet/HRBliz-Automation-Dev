@@ -1,7 +1,7 @@
 # HR Blizz
 
 **HR Blizz** is an automation testing framework designed to validate the functionality, performance, and reliability of HR-related web applications.
-The framework is built using **Java**, **Maven**, and **Selenium WebDriver**, providing flexibility, scalability, and ease of integration.
+The framework is built using **Java**,**Testng**, **Maven**, and **Selenium WebDriver**, providing flexibility, scalability, and ease of integration.
 
 ---
 

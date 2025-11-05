@@ -2,6 +2,8 @@ package step_definitions;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
+import io.cucumber.java.AfterStep;
 import io.cucumber.java.Scenario;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.*;
@@ -13,14 +15,14 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.CapabilityType;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
+import utils.ExtentManager;
+
 import java.util.HashMap;
 import java.util.Map;
 
-
-import static utils.TestRunner.extent;
-
 public class Hooks {
-    static ExtentTest test;
+    private static ExtentReports extent = ExtentManager.createInstance();
+    private static ThreadLocal<ExtentTest> test = new ThreadLocal<>();
     public static WebDriver driver;
     public static String downloadfolderPath = System.getProperty("user.dir") + "\\testDataOutput";
     private ChromeOptions chromeOptions = new ChromeOptions();
@@ -28,8 +30,9 @@ public class Hooks {
 
     @Before
     public void before(Scenario scenario) {
-        test = extent.createTest(scenario.getName());
-        String browser = System.getProperty("browser", "chromeheadless");
+        ExtentTest extentTest = extent.createTest(scenario.getName());
+        test.set(extentTest);
+        String browser = System.getProperty("browser", "chrome");
         switch (browser.toLowerCase().trim()) {
             case "chrome":
                 Map<String, Object> prefs = new HashMap<String, Object>();
@@ -71,6 +74,14 @@ public class Hooks {
         }
 
     }
+    @AfterStep
+    public void afterStep(Scenario scenario) {
+        if (scenario.isFailed()) {
+            test.get().log(Status.FAIL, "Step Failed");
+        } else {
+            test.get().log(Status.PASS, "Step Passed");
+        }
+    }
 
     @After
     public void after(Scenario scenario) {
@@ -90,6 +101,7 @@ public class Hooks {
             }
 
         }
+        extent.flush();
         if (driver != null) {
             driver.close();
             driver.quit();
